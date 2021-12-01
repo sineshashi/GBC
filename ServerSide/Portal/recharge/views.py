@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics, serializers, status
 from rest_framework.exceptions import NotAcceptable
-from .models import PrimaryDistributor, Distributor, Recharge, Retailer, Wallet
+from .models import CouponCode, PrimaryDistributor, Distributor, Recharge, Retailer, Wallet
 from .serializers import (
     CreateDistributorSerializer, CreatePrimaryDistributorSerializer, CreateRetailerSerializer, RechargeSerializer,
     RetrieveDistributorSerializer, RetrieveRetailerSerializer, RetrievePrimaryDistributorSerializer,
@@ -10,7 +10,7 @@ from .serializers import (
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from .MyPermissionClasses import (IsPrimaryDistributor, IsDistributor, IsRetailer,
-                                  IsPrimaryDistributorOrDistirbutor, IsAuthenticated)
+                                  IsPrimaryDistributorOrDistirbutor, IsAuthenticated, IsRetailerOrDistirbutor)
 
 
 class CreatePrimaryDistrubutorView(generics.CreateAPIView):
@@ -55,6 +55,18 @@ class CreatePrimaryDistrubutorView(generics.CreateAPIView):
             password = make_password(password)
             request.data['user']['password'] = password
             del request.data['user']['confirm_password']
+            if request.data.get('coupon_code') is not None:
+                if request.data.get('coupon_code') not in CouponCode.objects.values_list('coupon_code', flat=True):
+                    raise NotAcceptable(detail="Please enter a valid coupon code.")
+                else:
+                    coupon = CouponCode.objects.filter(coupon_code = request.data.get('coupon_code')).first()
+                    if coupon.is_active == False:
+                        raise NotAcceptable(detail="This coupon code has expired.")
+                    else:
+                        coupon_price = coupon.primary_dis_price
+                        request.data['primary_dis_price'] = coupon_price
+            else:
+                request.data['primary_dis_price'] = 199
         return super().create(request, *args, **kwargs)
     queryset = PrimaryDistributor.objects.all()
     serializer_class = CreatePrimaryDistributorSerializer
@@ -148,7 +160,18 @@ class CreateDistrubutorView(generics.CreateAPIView):
                         detail="Please provide right referral code")
                 else:
                     request.data['referred_by'] = referring_prime_dis.id
-
+            if request.data.get('coupon_code') is not None:
+                if request.data.get('coupon_code') not in CouponCode.objects.values_list('coupon_code', flat=True):
+                    raise NotAcceptable(detail="Please enter a valid coupon code.")
+                else:
+                    coupon = CouponCode.objects.filter(coupon_code = request.data.get('coupon_code')).first()
+                    if coupon.is_active == False:
+                        raise NotAcceptable(detail="This coupon code has expired.")
+                    else:
+                        coupon_price = coupon.dis_price
+                        request.data['dis_price'] = coupon_price
+            else:
+                request.data['dis_price'] = 99
         return super().create(request, *args, **kwargs)
     queryset = Distributor.objects.all()
     serializer_class = CreateDistributorSerializer
@@ -247,6 +270,18 @@ class CreateRetailerView(generics.CreateAPIView):
                         request.data['referred_by_distributor'] = referring_dis.id
                 else:
                     request.data['referred_by_primary_distributor'] = referring_prime_dis.id
+            if request.data.get('coupon_code') is not None:
+                if request.data.get('coupon_code') not in CouponCode.objects.values_list('coupon_code', flat=True):
+                    raise NotAcceptable(detail="Please enter a valid coupon code.")
+                else:
+                    coupon = CouponCode.objects.filter(coupon_code = request.data.get('coupon_code')).first()
+                    if coupon.is_active == False:
+                        raise NotAcceptable(detail="This coupon code has expired.")
+                    else:
+                        coupon_price = coupon.ret_price
+                        request.data['ret_price'] = coupon_price
+            else:
+                request.data['ret_price'] = 49
         return super().create(request, *args, **kwargs)
     queryset = Retailer.objects.all()
     serializer_class = CreateRetailerSerializer
@@ -434,6 +469,7 @@ class WalletView(generics.RetrieveUpdateAPIView):
         return super().retrieve(request, *args, **kwargs)
     
     def update(self, request, *args, **kwargs):
+        #payment has to be managed here.
         pk = kwargs.get('pk') 
         wallet = Wallet.objects.filter(id=pk).first()
         if wallet is None:
@@ -470,3 +506,4 @@ class RechargeView(generics.ListCreateAPIView):
         return Recharge.objects.filter(user_id = self.request.user.id)
     serializer_class = RechargeSerializer
     permission_classes = [IsAuthenticated]
+

@@ -6,3 +6,7 @@ def generate_ref_code():
 def generate_ref_code1():
     code = str(uuid.uuid4()).replace("-", "")[:8]
     return code  
+
+def generate_ref_code2():
+    code = str(uuid.uuid4()).replace("-", "")[:10]
+    return code 

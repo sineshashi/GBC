@@ -35,3 +35,11 @@ class IsAuthenticated(BasePermission):
         if (PD is None) and (D is None) and (R is None):
             raise NotAuthenticated("You are not a registered distributor or primary distributor.")
         return bool(request.user and request.user.is_authenticated)
+
+class IsRetailerOrDistirbutor(BasePermission):
+    def has_permission(self, request, view):
+        R = Retailer.objects.filter(user_id = request.user.id).first()
+        D = Distributor.objects.filter(user_id = request.user.id).first()
+        if (R is None) and (D is None):
+            raise NotAuthenticated("You are not a registered distributor or retailer.")
+        return bool(request.user and request.user.is_authenticated)

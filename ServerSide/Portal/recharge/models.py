@@ -4,7 +4,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models.aggregates import Min
-from .utils import generate_ref_code, generate_ref_code1
+from .utils import generate_ref_code, generate_ref_code1, generate_ref_code2
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -102,6 +102,7 @@ class PrimaryDistributor(models.Model):
         max_length=7, default=generate_ref_code(), unique=True)
     retailer_referral_code = models.CharField(
         max_length=8, default=generate_ref_code1(), unique=True)
+    primary_dis_price = models.FloatField(default=199)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -124,6 +125,7 @@ class Distributor(models.Model):
         max_length=8, default=generate_ref_code1(), unique=True)
     referred_by = models.ForeignKey(
         PrimaryDistributor, on_delete=models.CASCADE, blank=True, null=True)
+    dis_price = models.FloatField(default=99)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -146,6 +148,7 @@ class Retailer(models.Model):
         PrimaryDistributor, on_delete=models.CASCADE, blank=True, null=True)
     referred_by_distributor = models.ForeignKey(
         Distributor, on_delete=models.CASCADE, blank=True, null=True)
+    ret_price = models.FloatField(default=49)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -203,3 +206,16 @@ class Recharge(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="recharging_user")
     plan = models.ForeignKey(RechargePlan, on_delete=models.CASCADE, related_name="recharge_plan")
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class CouponCode(models.Model):
+    coupon_code = models.CharField(max_length=255, unique=True, default=generate_ref_code2())
+    primary_dis_price = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(199)], default=0)
+    dis_price = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(99)], default=0)
+    ret_price=models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(49)], default=0)
+    max_number_of_times= models.PositiveIntegerField()
+    used_number_of_times = models.PositiveIntegerField(default=0)
+    valid_till = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

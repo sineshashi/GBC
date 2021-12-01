@@ -3,7 +3,9 @@ from rest_framework.exceptions import NotAcceptable
 from .models import PrimaryDistributor, Distributor, Retailer, Wallet, Recharge
 from django.contrib.auth.models import User
 
-
+'''
+    All payments has to be managed yet.
+'''
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -15,10 +17,11 @@ class CreatePrimaryDistributorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PrimaryDistributor
-        fields = ['user', 'date_of_birth', 'mobile_number',
+        fields = ['user', 'date_of_birth', 'mobile_number', 'primary_dis_price',
                   'image', 'created_at', 'updated_at']
 
     def create(self, validated_data):
+        #payments are to be managed here.
         user = validated_data.pop('user')
         userinstance = User.objects.create(**user)
         Wallet.objects.create(user=userinstance)
@@ -36,7 +39,7 @@ class CreatePrimaryDistributorSerializer(serializers.ModelSerializer):
 class RetrievePrimaryDistributorSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrimaryDistributor
-        fields = ['user', 'date_of_birth', 'mobile_number', 'percentage', 'airtel_small_percentage',
+        fields = ['user', 'date_of_birth', 'mobile_number', 'percentage', 'airtel_small_percentage', 'dis_price',
                   'image', 'retailer_referral_code', 'distributor_referral_code', 'created_at', 'updated_at']
 
 
@@ -49,6 +52,7 @@ class CreateDistributorSerializer(serializers.ModelSerializer):
                   'image', 'created_at', 'updated_at']
 
     def create(self, validated_data):
+        #payments are to be managed here.
         user = validated_data.pop('user')
         userinstance = User.objects.create(**user)
         Wallet.objects.create(user=userinstance)
@@ -82,9 +86,10 @@ class CreateRetailerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Retailer
         fields = ['user', 'date_of_birth', 'mobile_number', 'referred_by_distributor', 'referred_by_primary_distributor',
-                  'image', 'created_at', 'updated_at']
+                  'image', 'ret_price', 'created_at', 'updated_at']
 
     def create(self, validated_data):
+        #payments has to be managed here.
         user = validated_data.pop('user')
         userinstance = User.objects.create(**user)
         Wallet.objects.create(user=userinstance)
@@ -124,6 +129,7 @@ class WalletSerializer(serializers.ModelSerializer):
         fields = ['user', 'value', 'updated_at']
 
     def update(self, instance, validated_data):
+        #payments has to be managed here.
         requested_added_money = float(validated_data['value'])
         instance.value = instance.value+requested_added_money
         instance.save()
@@ -136,6 +142,7 @@ class WalletWithdrawSerializer(serializers.ModelSerializer):
         fields = ['value', 'updated_at']
 
     def update(self, instance, validated_data):
+        #payments has to be managed here.
         requested_added_money = float(validated_data['value'])
         if requested_added_money > instance.value:
             raise NotAcceptable(detail="You don't have enough value")
@@ -210,18 +217,18 @@ class RechargeSerializer(serializers.ModelSerializer):
         if primary_distributor is not None:
             if (requestplan.network == "Airtel") and (requestplan.plan < 300):
                 airtel_small_percentage = primary_distributor.airtel_small_percentage
-                wallet_value = wallet.value + \
+                wallet_value = wallet.value - requestplan.plan + \
                     (requestplan.plan*airtel_small_percentage/100)
                 Wallet.objects.filter(user_id=user.id).update(value=wallet_value)
             else:
                 percentage = primary_distributor.percentage
-                wallet_value = wallet.value + (requestplan.plan*percentage/100)
+                wallet_value = wallet.value-requestplan.plan + (requestplan.plan*percentage/100)
                 Wallet.objects.filter(user_id=user.id).update(value=wallet_value)
         if distributor is not None:
             
             if (requestplan.network == "Airtel") and (requestplan.plan < 300):
                 airtel_small_percentage = distributor.airtel_small_percentage
-                wallet_value = wallet.value + \
+                wallet_value = wallet.value - requestplan.plan + \
                     (requestplan.plan*airtel_small_percentage/100)
                 Wallet.objects.filter(user_id=user.id).update(value=wallet_value)
                 if distributor.referred_by is not None:
@@ -231,7 +238,7 @@ class RechargeSerializer(serializers.ModelSerializer):
                         value= ref_wallet.value + requestplan.plan*(referring_airtel_small_percentage-airtel_small_percentage)/100)
             else:
                 percentage = distributor.percentage
-                wallet_value = wallet.value + (requestplan.plan*percentage/100)
+                wallet_value = wallet.value- requestplan.plan+ (requestplan.plan*percentage/100)
                 Wallet.objects.filter(user_id=user.id).update(value=wallet_value)
                 if distributor.referred_by is not None:
                     referring_percentage = distributor.referred_by.percentage
@@ -241,7 +248,7 @@ class RechargeSerializer(serializers.ModelSerializer):
         if retailer is not None:
             if (requestplan.network == "Airtel") and (requestplan.plan < 300):
                 airtel_small_percentage = retailer.airtel_small_percentage
-                wallet_value = wallet.value + \
+                wallet_value = wallet.value - requestplan.plan + \
                     (requestplan.plan*airtel_small_percentage/100)
                 Wallet.objects.filter(user_id=user.id).update(value=wallet_value)
                 if retailer.referred_by_primary_distributor is not None:
@@ -261,7 +268,7 @@ class RechargeSerializer(serializers.ModelSerializer):
                             value= ref_wallet.value+ requestplan.plan*(sup_referring_airtel_percentage-referring_airtel_small_percentage)/100)
             else:
                 percentage = retailer.percentage
-                wallet_value = wallet.value + \
+                wallet_value = wallet.value -requestplan.plan + \
                     (requestplan.plan*percentage/100)
                 Wallet.objects.filter(user_id=user.id).update(value=wallet_value)
                 if retailer.referred_by_primary_distributor is not None:
