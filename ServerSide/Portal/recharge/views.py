@@ -57,11 +57,14 @@ class CreatePrimaryDistrubutorView(generics.CreateAPIView):
             del request.data['user']['confirm_password']
             if request.data.get('coupon_code') is not None:
                 if request.data.get('coupon_code') not in CouponCode.objects.values_list('coupon_code', flat=True):
-                    raise NotAcceptable(detail="Please enter a valid coupon code.")
+                    raise NotAcceptable(
+                        detail="Please enter a valid coupon code.")
                 else:
-                    coupon = CouponCode.objects.filter(coupon_code = request.data.get('coupon_code')).first()
+                    coupon = CouponCode.objects.filter(
+                        coupon_code=request.data.get('coupon_code')).first()
                     if coupon.is_active == False:
-                        raise NotAcceptable(detail="This coupon code has expired.")
+                        raise NotAcceptable(
+                            detail="This coupon code has expired.")
                     else:
                         coupon_price = coupon.primary_dis_price
                         request.data['primary_dis_price'] = coupon_price
@@ -162,11 +165,14 @@ class CreateDistrubutorView(generics.CreateAPIView):
                     request.data['referred_by'] = referring_prime_dis.id
             if request.data.get('coupon_code') is not None:
                 if request.data.get('coupon_code') not in CouponCode.objects.values_list('coupon_code', flat=True):
-                    raise NotAcceptable(detail="Please enter a valid coupon code.")
+                    raise NotAcceptable(
+                        detail="Please enter a valid coupon code.")
                 else:
-                    coupon = CouponCode.objects.filter(coupon_code = request.data.get('coupon_code')).first()
+                    coupon = CouponCode.objects.filter(
+                        coupon_code=request.data.get('coupon_code')).first()
                     if coupon.is_active == False:
-                        raise NotAcceptable(detail="This coupon code has expired.")
+                        raise NotAcceptable(
+                            detail="This coupon code has expired.")
                     else:
                         coupon_price = coupon.dis_price
                         request.data['dis_price'] = coupon_price
@@ -272,11 +278,14 @@ class CreateRetailerView(generics.CreateAPIView):
                     request.data['referred_by_primary_distributor'] = referring_prime_dis.id
             if request.data.get('coupon_code') is not None:
                 if request.data.get('coupon_code') not in CouponCode.objects.values_list('coupon_code', flat=True):
-                    raise NotAcceptable(detail="Please enter a valid coupon code.")
+                    raise NotAcceptable(
+                        detail="Please enter a valid coupon code.")
                 else:
-                    coupon = CouponCode.objects.filter(coupon_code = request.data.get('coupon_code')).first()
+                    coupon = CouponCode.objects.filter(
+                        coupon_code=request.data.get('coupon_code')).first()
                     if coupon.is_active == False:
-                        raise NotAcceptable(detail="This coupon code has expired.")
+                        raise NotAcceptable(
+                            detail="This coupon code has expired.")
                     else:
                         coupon_price = coupon.ret_price
                         request.data['ret_price'] = coupon_price
@@ -459,7 +468,7 @@ class UpdateReferredRetailersView(generics.RetrieveUpdateAPIView):
 
 class WalletView(generics.RetrieveUpdateAPIView):
     def retrieve(self, request, *args, **kwargs):
-        pk = kwargs.get('pk') 
+        pk = kwargs.get('pk')
         wallet = Wallet.objects.filter(id=pk).first()
         if wallet is None:
             raise NotAcceptable(detail="Please go with the right wallet id")
@@ -467,10 +476,10 @@ class WalletView(generics.RetrieveUpdateAPIView):
             raise NotAcceptable(
                 detail="You are not authorized for this action.")
         return super().retrieve(request, *args, **kwargs)
-    
+
     def update(self, request, *args, **kwargs):
-        #payment has to be managed here.
-        pk = kwargs.get('pk') 
+        # payment has to be managed here.
+        pk = kwargs.get('pk')
         wallet = Wallet.objects.filter(id=pk).first()
         if wallet is None:
             raise NotAcceptable(detail="Please go with the right wallet id")
@@ -483,9 +492,10 @@ class WalletView(generics.RetrieveUpdateAPIView):
     serializer_class = WalletSerializer
     permissoion_classes = [IsAuthenticated]
 
+
 class WithdrawView(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
-        pk = kwargs.get('pk') 
+        pk = kwargs.get('pk')
         wallet = Wallet.objects.filter(id=pk).first()
         if wallet is None:
             raise NotAcceptable(detail="Please go with the right wallet id")
@@ -498,12 +508,13 @@ class WithdrawView(generics.UpdateAPIView):
     serializer_class = WalletWithdrawSerializer
     permissoion_classes = [IsAuthenticated]
 
+
 class RechargeView(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         request.data['user'] = self.request.user.id
         return super().create(request, *args, **kwargs)
+
     def get_queryset(self):
-        return Recharge.objects.filter(user_id = self.request.user.id)
+        return Recharge.objects.filter(user_id=self.request.user.id)
     serializer_class = RechargeSerializer
     permission_classes = [IsAuthenticated]
-

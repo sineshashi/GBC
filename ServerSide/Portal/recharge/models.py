@@ -162,14 +162,15 @@ class Wallet(models.Model):
     value = models.FloatField(default=0, validators=[MinValueValidator(0)])
     updated_at = models.DateTimeField(auto_now_add=True)
 
-Netwrok_choices =[
+
+Netwrok_choices = [
     ('Airtel', 'Airtel'),
     ('Jio', 'Jio'),
     ('VI', 'VI'),
     ('BSNL', 'BSNL')
 ]
 
-Area_Choices =[
+Area_Choices = [
     ('Andhra Pradesh', 'Andhra Pradesh'),
     ('Assam', 'Assam'),
     ('Bihar', 'Bihar'),
@@ -194,26 +195,35 @@ Area_Choices =[
     ('West Bengal', 'West Bengal')
 ]
 
+
 class RechargePlan(models.Model):
     network = models.CharField(max_length=255, choices=Netwrok_choices)
-    plan = models.IntegerField(validators= [MinValueValidator(0)])
+    plan = models.IntegerField(validators=[MinValueValidator(0)])
     telecom_area = models.CharField(max_length=255, choices=Area_Choices)
     details = models.TextField(max_length=600)
+
     def __str__(self):
         return str(self.plan) + "  " + self.network + " " + str(self.telecom_area)
 
+
 class Recharge(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="recharging_user")
-    plan = models.ForeignKey(RechargePlan, on_delete=models.CASCADE, related_name="recharge_plan")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="recharging_user")
+    plan = models.ForeignKey(
+        RechargePlan, on_delete=models.CASCADE, related_name="recharge_plan")
     created_at = models.DateTimeField(auto_now_add=True)
 
 
 class CouponCode(models.Model):
-    coupon_code = models.CharField(max_length=255, unique=True, default=generate_ref_code2())
-    primary_dis_price = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(199)], default=0)
-    dis_price = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(99)], default=0)
-    ret_price=models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(49)], default=0)
-    max_number_of_times= models.PositiveIntegerField()
+    coupon_code = models.CharField(
+        max_length=255, unique=True, default=generate_ref_code2())
+    primary_dis_price = models.FloatField(
+        validators=[MinValueValidator(0), MaxValueValidator(199)], default=0)
+    dis_price = models.FloatField(
+        validators=[MinValueValidator(0), MaxValueValidator(99)], default=0)
+    ret_price = models.FloatField(
+        validators=[MinValueValidator(0), MaxValueValidator(49)], default=0)
+    max_number_of_times = models.PositiveIntegerField()
     used_number_of_times = models.PositiveIntegerField(default=0)
     valid_till = models.DateTimeField()
     is_active = models.BooleanField(default=True)

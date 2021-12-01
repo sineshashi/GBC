@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import PrimaryDistributor, Distributor, Retailer, Wallet, Recharge, RechargePlan, CouponCode
 from django.utils import timezone
+
+
 @admin.register(PrimaryDistributor)
 class PrimaryDistributorAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'user_id', 'date_of_birth', 'mobile_number', 'percentage', 'airtel_small_percentage',
@@ -46,6 +48,7 @@ class RechargeAdmin(admin.ModelAdmin):
 class CouponCodeAdmin(admin.ModelAdmin):
     list_display = ['id', 'coupon_code', 'primary_dis_price', 'dis_price', 'ret_price',
                     'max_number_of_times', 'used_number_of_times', 'is_active_now', 'valid_till', 'created_at', 'updated_at']
+
     def is_active_now(self, instance):
         if instance.max_number_of_times == 0:
             instance.is_active = False
@@ -63,4 +66,3 @@ class CouponCodeAdmin(admin.ModelAdmin):
             instance.is_active = True
             instance.save()
             return True
-  
