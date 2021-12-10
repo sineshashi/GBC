@@ -30,19 +30,19 @@ class CreatePrimaryDistrubutorView(generics.CreateAPIView):
             raise NotAcceptable(detail="password not Provided")
         if len(str(request.data['user']['password'])) < 8:
             raise NotAcceptable(
-                detail="Password must contain at least 8 character.")
+                detail="Password must contain at least 8 characters.")
         password = request.data['user']['password']
         if password.isdigit():
             raise NotAcceptable(detail="password must cantain alphabets.")
-        for char in list(str(password)):
+        for char in list(password):
             try:
                 int(char)
                 bool = True
+                break
             except:
                 bool = False
-        if bool == True:
-            raise NotAcceptable(
-                detail="At least one numeric digit must be provided.")
+        if bool == False:
+            raise NotAcceptable(detail="Password must contain at least one numeric digit also.")
         if userdata.get('confirm_password') is None:
             raise NotAcceptable(detail="confirm password not Provided")
         if request.data['user']['password'] != request.data['user']['confirm_password']:
@@ -77,6 +77,7 @@ class CreatePrimaryDistrubutorView(generics.CreateAPIView):
 
 class UpdatePrimaryDistributor(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
+        print(request.data)
         if kwargs.get('pk') is None:
             raise NotAcceptable(detail="No data provided for update.")
         kwargs['partial'] = True
@@ -93,20 +94,9 @@ class UpdatePrimaryDistributor(generics.UpdateAPIView):
     permission_classes = [IsPrimaryDistributor]
 
 
-class RetrievePrimaryDistributorView(generics.RetrieveAPIView):
-    def retrieve(self, request, *args, **kwargs):
-        if kwargs.get('pk') is None:
-            raise NotAcceptable(detail="No data provided for update.")
-        kwargs['partial'] = True
-        id = kwargs.get('pk')
-        primary_distributor = PrimaryDistributor.objects.filter(id=id).first()
-        if primary_distributor is None:
-            raise NotAcceptable(detail="No such primary distributor exists")
-        if self.request.user.id != primary_distributor.user_id:
-            raise NotAcceptable(
-                detail="You are not authorized for this action")
-        return super().retrieve(request, *args, **kwargs)
-    queryset = PrimaryDistributor.objects.all()
+class RetrievePrimaryDistributorView(generics.ListAPIView):
+    def get_queryset(self):
+        return PrimaryDistributor.objects.filter(user_id = self.request.user.id)
     serializer_class = RetrievePrimaryDistributorSerializer
     permission_classes = [IsPrimaryDistributor]
 
@@ -132,15 +122,15 @@ class CreateDistrubutorView(generics.CreateAPIView):
         password = request.data['user']['password']
         if password.isdigit():
             raise NotAcceptable(detail="password must cantain alphabets.")
-        for char in list(str(password)):
+        for char in list(password):
             try:
                 int(char)
                 bool = True
+                break
             except:
                 bool = False
         if bool == False:
-            raise NotAcceptable(
-                detail="At least one numeric digit must be provided.")
+            raise NotAcceptable(detail="Password must contain at least one numeric digit also.")
         if userdata.get('confirm_password') is None:
             raise NotAcceptable(detail="confirm password not Provided")
         if request.data['user']['password'] != request.data['user']['confirm_password']:
@@ -201,20 +191,9 @@ class UpdateDistributor(generics.UpdateAPIView):
     permission_classes = [IsDistributor]
 
 
-class RetrieveDistributorView(generics.RetrieveAPIView):
-    def retrieve(self, request, *args, **kwargs):
-        if kwargs.get('pk') is None:
-            raise NotAcceptable(detail="No data provided for update.")
-        kwargs['partial'] = True
-        id = kwargs.get('pk')
-        distributor = Distributor.objects.filter(id=id).first()
-        if distributor is None:
-            raise NotAcceptable(detail="No such distributor exists")
-        if self.request.user.id != distributor.user_id:
-            raise NotAcceptable(
-                detail="You are not authorized for this action")
-        return super().retrieve(request, *args, **kwargs)
-    queryset = Distributor.objects.all()
+class RetrieveDistributorView(generics.ListAPIView):
+    def get_queryset(self):
+        return Distributor.objects.filter(user_id = self.request.user.id)
     serializer_class = RetrieveDistributorSerializer
     permission_classes = [IsDistributor]
 
@@ -240,15 +219,15 @@ class CreateRetailerView(generics.CreateAPIView):
         password = request.data['user']['password']
         if password.isdigit():
             raise NotAcceptable(detail="password must cantain alphabets.")
-        for char in list(str(password)):
+        for char in list(password):
             try:
                 int(char)
                 bool = True
+                break
             except:
                 bool = False
         if bool == False:
-            raise NotAcceptable(
-                detail="At least one numeric digit must be provided.")
+            raise NotAcceptable(detail="Password must contain at least one numeric digit also.")
         if userdata.get('confirm_password') is None:
             raise NotAcceptable(detail="confirm password not Provided")
         if request.data['user']['password'] != request.data['user']['confirm_password']:
@@ -314,20 +293,10 @@ class UpdateRetailer(generics.UpdateAPIView):
     permission_classes = [IsRetailer]
 
 
-class RetrieveRetailerView(generics.RetrieveAPIView):
-    def retrieve(self, request, *args, **kwargs):
-        if kwargs.get('pk') is None:
-            raise NotAcceptable(detail="No data provided for update.")
-        kwargs['partial'] = True
-        id = kwargs.get('pk')
-        retailer = Retailer.objects.filter(id=id).first()
-        if retailer is None:
-            raise NotAcceptable(detail="No such retailer exists")
-        if self.request.user.id != retailer.user_id:
-            raise NotAcceptable(
-                detail="You are not authorized for this action")
-        return super().retrieve(request, *args, **kwargs)
-    queryset = Retailer.objects.all()
+class RetrieveRetailerView(generics.ListAPIView):
+    def get_queryset(self):
+        userid = self.request.user
+        return Retailer.objects.filter(user_id = userid)
     serializer_class = RetrieveRetailerSerializer
     permission_classes = [IsRetailer]
 

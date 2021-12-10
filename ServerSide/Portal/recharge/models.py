@@ -99,16 +99,19 @@ class PrimaryDistributor(models.Model):
         validators=[MaxValueValidator(3)], default=2.5)
     image = models.ImageField(blank=True, null=True)
     distributor_referral_code = models.CharField(
-        max_length=7, default=generate_ref_code(), unique=True)
+        max_length=7, blank = True)
     retailer_referral_code = models.CharField(
-        max_length=8, default=generate_ref_code1(), unique=True)
+        max_length=8, blank=True)
     primary_dis_price = models.FloatField(default=199)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.username
-
+    def save(self, *args, **kwargs):
+        self.retailer_referral_code = generate_ref_code1()
+        self.distributor_referral_code = generate_ref_code()
+        return super(PrimaryDistributor, self).save(*args, **kwargs)
 
 class Distributor(models.Model):
     user = models.OneToOneField(
@@ -122,7 +125,7 @@ class Distributor(models.Model):
         validators=[MaxValueValidator(3), MinValueValidator(1.5)])
     image = models.ImageField(blank=True, null=True)
     retailer_referral_code = models.CharField(
-        max_length=8, default=generate_ref_code1(), unique=True)
+        max_length=8, blank=True)
     referred_by = models.ForeignKey(
         PrimaryDistributor, on_delete=models.CASCADE, blank=True, null=True)
     dis_price = models.FloatField(default=99)
@@ -131,7 +134,9 @@ class Distributor(models.Model):
 
     def __str__(self):
         return self.user.username
-
+    def save(self, *args, **kwargs):
+        self.retailer_referral_code = generate_ref_code1()
+        return super(Distributor, self).save(*args, **kwargs)
 
 class Retailer(models.Model):
     user = models.OneToOneField(
@@ -216,7 +221,7 @@ class Recharge(models.Model):
 
 class CouponCode(models.Model):
     coupon_code = models.CharField(
-        max_length=255, unique=True, default=generate_ref_code2())
+        max_length=255, blank=True)
     primary_dis_price = models.FloatField(
         validators=[MinValueValidator(0), MaxValueValidator(199)], default=0)
     dis_price = models.FloatField(
@@ -229,3 +234,6 @@ class CouponCode(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    def save(self, *args, **kwargs):
+        self.coupon_code = generate_ref_code2()
+        return super(CouponCode, self).save(*args, **kwargs)

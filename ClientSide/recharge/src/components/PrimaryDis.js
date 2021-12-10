@@ -1,17 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
+import ReactDOM from 'react-dom';
 
 const CreatePrimaryDistributor = () => {
-  const [user, setUser] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    username: "",
-    password: "",
-    confirm_password: "",
-  });
-
-
   const [first_name, setfirst_name] = useState("");
   const [last_name, setlast_name] = useState("");
   const [email, setemail] = useState("");
@@ -52,16 +43,15 @@ const CreatePrimaryDistributor = () => {
   };
 
   const submitPrimaryDistributor = (e) => {
-    setUser({
-      first_name: first_name,
-      last_name: last_name,
-      email: email,
-      username: username,
-      password: password,
-      confirm_password: confirm_password,
-    });
     let requested_data = JSON.stringify({
-      user: user,
+      user: {
+        first_name: first_name,
+        last_name: last_name,
+        email: email,
+        username: username,
+        password: password,
+        confirm_password: confirm_password,
+      },
       mobile_number: mobile_number,
       date_of_birth: date_of_birth,
       image: image,
@@ -75,9 +65,20 @@ const CreatePrimaryDistributor = () => {
         'Content-Type': 'application/json'
       }
     }).then((response)=>{
-      console.log(response.data)
+      // this must be sent to payment gateway.
+      ReactDOM.render(
+        <>
+          <h1 className="responseType">You are now our primary distributor with username {username}</h1>
+        </>,
+        document.getElementById('root')
+      )
     }).catch((error)=>{
-      console.log(error.response.request.responseText)
+      ReactDOM.render(
+        <>
+          <h1>{error.response.request.responseText}</h1>
+        </>,
+        document.getElementById('root')
+      )
     })
   };
 
