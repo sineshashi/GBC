@@ -119,14 +119,13 @@ const PrimaryDistributorProfile = (props) => {
 };
 
 const UpdatePersonalInfo = (props) => {
-    
-    const [first_name, setfirst_name] = useState(props.first_name);
-    const [last_name, setlast_name] = useState(props.last_name);
-    const [email, setemail] = useState(props.email);
-    const [mobile_number, setmobile_number] = useState(props.mobile_number);
-    const [date_of_birth, setdate_of_birth] = useState(props.date_of_birth);
+  const [first_name, setfirst_name] = useState(props.first_name);
+  const [last_name, setlast_name] = useState(props.last_name);
+  const [email, setemail] = useState(props.email);
+  const [mobile_number, setmobile_number] = useState(props.mobile_number);
+  const [date_of_birth, setdate_of_birth] = useState(props.date_of_birth);
   const handleFirstName = (e) => {
-    setfirst_name(e.target.value)
+    setfirst_name(e.target.value);
   };
   const handleLastName = (e) => {
     setlast_name(e.target.value);
@@ -170,14 +169,12 @@ const UpdatePersonalInfo = (props) => {
     })
       .then((response) => {
         ReactDOM.render(
-            <h1>Your profile has been updated.</h1>,
-            document.getElementById("root")
-        )
+          <h1>Your profile has been updated.</h1>,
+          document.getElementById("root")
+        );
       })
       .catch((error) => {
-        ReactDOM.render(
-            <h1>{error.response.request.responseText}</h1>
-        )
+        ReactDOM.render(<h1>{error.response.request.responseText}</h1>);
       });
   };
   return (

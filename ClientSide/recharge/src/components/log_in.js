@@ -37,10 +37,7 @@ const Login = () => {
           30 * 24 * 60 * 60 +
           "; expires=" +
           new Date(d.getTime + 30 * 24 * 60 * 60 * 1000);
-          ReactDOM.render(
-            <PrimDisProfile />,
-            document.getElementById("root")
-          )
+        ReactDOM.render(<PrimDisProfile />, document.getElementById("root"));
       })
       .catch((error) => {
         ReactDOM.render(

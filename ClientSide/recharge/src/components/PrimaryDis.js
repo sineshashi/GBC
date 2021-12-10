@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import ReactDOM from 'react-dom';
+import ReactDOM from "react-dom";
 
 const CreatePrimaryDistributor = () => {
   const [first_name, setfirst_name] = useState("");
@@ -38,7 +38,7 @@ const CreatePrimaryDistributor = () => {
   };
   const handleImage = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setimage( URL.createObjectURL(e.target.files[0]));
+      setimage(URL.createObjectURL(e.target.files[0]));
     }
   };
 
@@ -61,27 +61,30 @@ const CreatePrimaryDistributor = () => {
       url: "http://localhost:8000/primarydistributor",
       data: requested_data,
       responseType: "json",
-      headers:{
-        'Content-Type': 'application/json'
-      }
-    }).then((response)=>{
-      // this must be sent to payment gateway.
-      ReactDOM.render(
-        <>
-          <h1 className="responseType">You are now our primary distributor with username {username}</h1>
-        </>,
-        document.getElementById('root')
-      )
-    }).catch((error)=>{
-      ReactDOM.render(
-        <>
-          <h1>{error.response.request.responseText}</h1>
-        </>,
-        document.getElementById('root')
-      )
+      headers: {
+        "Content-Type": "application/json",
+      },
     })
+      .then((response) => {
+        // this must be sent to payment gateway.
+        ReactDOM.render(
+          <>
+            <h1 className="responseType">
+              You are now our primary distributor with username {username}
+            </h1>
+          </>,
+          document.getElementById("root")
+        );
+      })
+      .catch((error) => {
+        ReactDOM.render(
+          <>
+            <h1>{error.response.request.responseText}</h1>
+          </>,
+          document.getElementById("root")
+        );
+      });
   };
-
 
   return (
     <>
@@ -180,7 +183,7 @@ const CreatePrimaryDistributor = () => {
         <br />
         <br />
         <div>
-          <img src={image} alt="preview image" height="90px"/>
+          <img src={image} alt="preview image" height="90px" />
           <input type="file" onChange={handleImage} />
         </div>
         <br />
