@@ -71,6 +71,15 @@ const PrimDisProfile = () => {
       document.getElementById("root")
     );
   };
+  const handleReferandEarn = () =>{
+    ReactDOM.render(
+      <ReferAndEarn 
+      distributor_referral_code={dis_ref_code}
+      retailer_referral_code={ret_ref_code}
+      />,
+      document.getElementById("root")
+    )
+  }
   if (success == "false") {
     return <h1>{errorData}</h1>;
   } else {
@@ -82,6 +91,9 @@ const PrimDisProfile = () => {
           <p id="profileiconheader" fontSize="10pt">
             {first_name + " " + last_name}
           </p>
+        </div>
+        <div>
+          <button type="button" onClick={handleReferandEarn}>Refer and Earn</button>
         </div>
       </>
     );
@@ -248,5 +260,14 @@ const UpdatePersonalInfo = (props) => {
     </>
   );
 };
+
+const ReferAndEarn = (props) =>{
+  return (
+    <>
+      <p>Distributor Referral Code: {props.distributor_referral_code}    </p>
+      <button type="button"  >Refer for distributor</button>
+    </>
+  )
+}
 
 export default PrimDisProfile;

@@ -4,10 +4,14 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from django.conf.urls import url
+from rest_framework_swagger.views import get_swagger_view
 
+schema_view = get_swagger_view(title='Pastebin API')
 
 
 urlpatterns = [
+    url(r'^$', schema_view),
     path('primarydistributor', views.CreatePrimaryDistrubutorView.as_view(),
          name="create_primary_distributor"),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
